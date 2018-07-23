@@ -15,6 +15,13 @@ class Greeter
 
     public function greet() :string
     {
-        return 'おはようございます';
+        $currentTime = $this->clock->getCurrentTime();
+        if ($currentTime >= new \DateTimeImmutable('05:00:00') &&
+            $currentTime < new \DateTimeImmutable('12:00:00')
+        ) {
+            return 'おはようございます';
+        }
+
+        return '';
     }
 }
