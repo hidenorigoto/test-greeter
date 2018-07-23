@@ -19,9 +19,25 @@ class GreeterTest extends TestCase
     /**
      * @test
      */
-    public function あいさつする()
+    public function 朝ならおはようございます()
     {
+        $this->clock->expects($this->once())
+            ->method('getCurrentTime')
+            ->willReturn(new \DateTimeImmutable('08:00:00'));
+
         $this->assertThat($this->SUT->greet(), $this->equalTo('おはようございます'));
+    }
+
+    /**
+     * @test
+     */
+    public function 朝でないならあいさつなし()
+    {
+        $this->clock->expects($this->once())
+            ->method('getCurrentTime')
+            ->willReturn(new \DateTimeImmutable('15:00:00'));
+
+        $this->assertThat($this->SUT->greet(), $this->equalTo(''));
     }
 
     protected function setUp()
