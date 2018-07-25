@@ -10,11 +10,11 @@ abstract class TimeRange
     /**
      * @var \DateTimeInterface
      */
-    private $first;
+    protected $first;
     /**
      * @var \DateTimeInterface
      */
-    private $second;
+    protected $second;
 
     public function __construct(string $id, \DateTimeInterface $first, \DateTimeInterface $second)
     {

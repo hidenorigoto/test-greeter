@@ -9,6 +9,6 @@ class ClosedTimeRange extends TimeRange
      */
     public function contains(\DateTimeInterface $target): bool
     {
-        return true;
+        return $this->first <= $target && $target < $this->second;
     }
 }
