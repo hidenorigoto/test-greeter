@@ -8,35 +8,62 @@ class Greeter
      */
     private $clock;
     /**
-     * @var array
+     * @var array|TimeRange[]
      */
-    private $timeRangeAndGreetings = [];
+    private $timeRanges = [];
+    /**
+     * @var array|string[]
+     */
+    private $greetings = [];
+    /**
+     * @var Globe
+     */
+    private $globe;
 
-    public function __construct(Clock $clock)
+    public function __construct(Clock $clock, Globe $globe)
     {
         $this->clock = $clock;
+        $this->globe = $globe;
     }
 
-    public function addTimeRangeAndGreeting(TimeRange $timeRange, $greeting)
+    public function addTimeRange(TimeRange $timeRange)
     {
-        $this->timeRangeAndGreetings[] = [
-            'range' => $timeRange,
-            'greeting' => $greeting,
-        ];
+        $this->timeRanges[] = $timeRange;
     }
 
+    public function addGreeting(string $locale, string $timeRangeId, string $greeting)
+    {
+        $this->greetings[$locale][$timeRangeId] = $greeting;
+    }
+
+    /**
+     * @return string
+     */
     public function greet() :string
     {
-        $currentTime = $this->clock->getCurrentTime();
-        foreach ($this->timeRangeAndGreetings as $timeRangeAndGreeting)
-        {
-            if ($timeRangeAndGreeting['range']->contains($currentTime))
-            {
-                return $timeRangeAndGreeting['greeting'];
+        $currentTime   = $this->clock->getCurrentTime();
+        $timeRangeId   = $this->decideTimeRange($currentTime);
+        $currentLocale = $this->globe->getLocale();
+
+        if (isset($this->greetings[$currentLocale][$timeRangeId])) {
+            return $this->greetings[$currentLocale][$timeRangeId];
+        }
+
+        return '';
+    }
+
+    /**
+     * @param \DateTimeInterface $currentTime
+     * @return string
+     */
+    private function decideTimeRange(\DateTimeInterface $currentTime) :string
+    {
+        foreach ($this->timeRanges as $timeRange) {
+            if ($timeRange->contains($currentTime)) {
+                return $timeRange->getId();
             }
         }
 
-
-        return '';
+        throw new \LogicException('Uncovered time range:' . $currentTime->format('H:i'));
     }
 }
