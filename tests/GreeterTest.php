@@ -28,7 +28,11 @@ class GreeterTest extends TestCase
     {
         $this->clock->expects($this->once())
             ->method('getCurrentTime')
-            ->willReturn(new \DateTimeImmutable('08:00:00'));
+            ->willReturn($current = new \DateTimeImmutable('08:00:00'));
+        $this->morningTimeRange->expects($this->once())
+            ->method('contains')
+            ->with($current)
+            ->willReturn(true);
 
         $this->assertThat($this->SUT->greet(), $this->equalTo('おはようございます'));
     }
@@ -40,7 +44,11 @@ class GreeterTest extends TestCase
     {
         $this->clock->expects($this->once())
             ->method('getCurrentTime')
-            ->willReturn(new \DateTimeImmutable('15:00:00'));
+            ->willReturn($current = new \DateTimeImmutable('15:00:00'));
+        $this->morningTimeRange->expects($this->once())
+            ->method('contains')
+            ->with($current)
+            ->willReturn(false);
 
         $this->assertThat($this->SUT->greet(), $this->equalTo(''));
     }
