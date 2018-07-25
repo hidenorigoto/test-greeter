@@ -3,6 +3,7 @@ namespace Hg\Greeter\Tests;
 
 use Hg\Greeter\Clock;
 use Hg\Greeter\Greeter;
+use Hg\Greeter\MorningTimeRange;
 use PHPUnit\Framework\TestCase;
 
 class GreeterTest extends TestCase
@@ -15,6 +16,10 @@ class GreeterTest extends TestCase
      * @var Clock
      */
     private $clock;
+    /**
+     * @var MorningTimeRange
+     */
+    private $morningTimeRange;
 
     /**
      * @test
@@ -43,6 +48,7 @@ class GreeterTest extends TestCase
     protected function setUp()
     {
         $this->clock = $this->getMockBuilder(Clock::class)->getMock();
-        $this->SUT = new Greeter($this->clock);
+        $this->morningTimeRange = $this->getMockBuilder(MorningTimeRange::class)->getMock();
+        $this->SUT = new Greeter($this->clock, $this->morningTimeRange);
     }
 }

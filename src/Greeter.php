@@ -7,10 +7,15 @@ class Greeter
      * @var Clock
      */
     private $clock;
+    /**
+     * @var MorningTimeRange
+     */
+    private $morningTimeRange;
 
-    public function __construct(Clock $clock)
+    public function __construct(Clock $clock, MorningTimeRange $morningTimeRange)
     {
         $this->clock = $clock;
+        $this->morningTimeRange = $morningTimeRange;
     }
 
     public function greet() :string
