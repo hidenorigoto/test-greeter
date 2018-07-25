@@ -3,7 +3,7 @@ namespace Hg\Greeter\Tests;
 
 use Hg\Greeter\Clock;
 use Hg\Greeter\Greeter;
-use Hg\Greeter\MorningTimeRange;
+use Hg\Greeter\TimeRange;
 use PHPUnit\Framework\TestCase;
 
 class GreeterTest extends TestCase
@@ -16,39 +16,93 @@ class GreeterTest extends TestCase
      * @var Clock
      */
     private $clock;
-    /**
-     * @var MorningTimeRange
-     */
-    private $morningTimeRange;
 
     /**
      * @test
      */
-    public function 朝ならおはようございます()
+    public function 最初の時間範囲にマッチ()
     {
+        $time = new \DateTimeImmutable();
+
         $this->clock->expects($this->once())
             ->method('getCurrentTime')
-            ->willReturn($current = new \DateTimeImmutable('08:00:00'));
-        $this->morningTimeRange->expects($this->once())
+            ->willReturn($time);
+
+        $firstTimeRange = $this->getMockBuilder(TimeRange::class)->disableOriginalConstructor()->getMock();
+        $firstTimeRange->expects($this->once())
             ->method('contains')
-            ->with($current)
+            ->with($time)
             ->willReturn(true);
 
-        $this->assertThat($this->SUT->greet(), $this->equalTo('おはようございます'));
+        $secondTimeRange = $this->getMockBuilder(TimeRange::class)->disableOriginalConstructor()->getMock();
+        $secondTimeRange->expects($this->never())
+            ->method('contains');
+
+        $this->SUT->addTimeRangeAndGreeting($firstTimeRange, 'one');
+        $this->SUT->addTimeRangeAndGreeting($secondTimeRange, 'two');
+
+        $this->assertThat($this->SUT->greet(), $this->equalTo('one'));
     }
 
     /**
      * @test
      */
-    public function 朝でないならあいさつなし()
+    public function ニつ目の時間範囲にマッチ()
     {
+        $time = new \DateTimeImmutable();
+
         $this->clock->expects($this->once())
             ->method('getCurrentTime')
-            ->willReturn($current = new \DateTimeImmutable('15:00:00'));
-        $this->morningTimeRange->expects($this->once())
+            ->willReturn($time);
+
+        $firstTimeRange = $this->getMockBuilder(TimeRange::class)->disableOriginalConstructor()->getMock();
+        $firstTimeRange->expects($this->once())
             ->method('contains')
-            ->with($current)
+            ->with($time)
             ->willReturn(false);
+
+        $secondTimeRange = $this->getMockBuilder(TimeRange::class)->disableOriginalConstructor()->getMock();
+        $secondTimeRange->expects($this->once())
+            ->method('contains')
+            ->with($time)
+            ->willReturn(true);
+
+        $thirdTimeRange = $this->getMockBuilder(TimeRange::class)->disableOriginalConstructor()->getMock();
+        $thirdTimeRange->expects($this->never())
+            ->method('contains');
+
+        $this->SUT->addTimeRangeAndGreeting($firstTimeRange, 'one');
+        $this->SUT->addTimeRangeAndGreeting($secondTimeRange, 'two');
+        $this->SUT->addTimeRangeAndGreeting($thirdTimeRange, 'three');
+
+        $this->assertThat($this->SUT->greet(), $this->equalTo('two'));
+    }
+
+    /**
+     * @test
+     */
+    public function 時間範囲にマッチしない()
+    {
+        $time = new \DateTimeImmutable();
+
+        $this->clock->expects($this->once())
+            ->method('getCurrentTime')
+            ->willReturn($time);
+
+        $firstTimeRange = $this->getMockBuilder(TimeRange::class)->disableOriginalConstructor()->getMock();
+        $firstTimeRange->expects($this->once())
+            ->method('contains')
+            ->with($time)
+            ->willReturn(false);
+
+        $secondTimeRange = $this->getMockBuilder(TimeRange::class)->disableOriginalConstructor()->getMock();
+        $secondTimeRange->expects($this->once())
+            ->method('contains')
+            ->with($time)
+            ->willReturn(false);
+
+        $this->SUT->addTimeRangeAndGreeting($firstTimeRange, 'one');
+        $this->SUT->addTimeRangeAndGreeting($secondTimeRange, 'two');
 
         $this->assertThat($this->SUT->greet(), $this->equalTo(''));
     }
@@ -56,7 +110,6 @@ class GreeterTest extends TestCase
     protected function setUp()
     {
         $this->clock = $this->getMockBuilder(Clock::class)->getMock();
-        $this->morningTimeRange = $this->getMockBuilder(MorningTimeRange::class)->getMock();
-        $this->SUT = new Greeter($this->clock, $this->morningTimeRange);
+        $this->SUT   = new Greeter($this->clock);
     }
 }

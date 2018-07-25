@@ -8,22 +8,34 @@ class Greeter
      */
     private $clock;
     /**
-     * @var MorningTimeRange
+     * @var array
      */
-    private $morningTimeRange;
+    private $timeRangeAndGreetings = [];
 
-    public function __construct(Clock $clock, MorningTimeRange $morningTimeRange)
+    public function __construct(Clock $clock)
     {
         $this->clock = $clock;
-        $this->morningTimeRange = $morningTimeRange;
+    }
+
+    public function addTimeRangeAndGreeting(TimeRange $timeRange, $greeting)
+    {
+        $this->timeRangeAndGreetings[] = [
+            'range' => $timeRange,
+            'greeting' => $greeting,
+        ];
     }
 
     public function greet() :string
     {
         $currentTime = $this->clock->getCurrentTime();
-        if ($this->morningTimeRange->contains($currentTime)) {
-            return 'おはようございます';
+        foreach ($this->timeRangeAndGreetings as $timeRangeAndGreeting)
+        {
+            if ($timeRangeAndGreeting['range']->contains($currentTime))
+            {
+                return $timeRangeAndGreeting['greeting'];
+            }
         }
+
 
         return '';
     }
